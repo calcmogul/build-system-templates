@@ -18,15 +18,15 @@ rwildcard=$(wildcard $1$2) $(foreach dir,$(wildcard $1*),$(call rwildcard,$(dir)
 SRC_C := $(call rwildcard,$(SRCDIR)/,*.c)
 SRC_CPP := $(call rwildcard,$(SRCDIR)/,*.cpp)
 
-C_OBJ := $(addprefix $(OBJDIR)/,$(SRC_C:.c=.o))
-CPP_OBJ := $(addprefix $(OBJDIR)/,$(SRC_CPP:.cpp=.o))
+OBJ_C := $(addprefix $(OBJDIR)/,$(SRC_C:.c=.o))
+OBJ_CPP := $(addprefix $(OBJDIR)/,$(SRC_CPP:.cpp=.o))
 
 .PHONY: all
 all: $(OBJDIR)/$(EXEC)
 
--include $(C_OBJ:.o=.d) $(CPP_OBJ:.o=.d)
+-include $(OBJ_C:.o=.d) $(OBJ_CPP:.o=.d)
 
-$(OBJDIR)/$(EXEC): $(C_OBJ) $(CPP_OBJ)
+$(OBJDIR)/$(EXEC): $(OBJ_C) $(OBJ_CPP)
 	@mkdir -p $(@D)
 	$(LD) $+ $(LDFLAGS) -o $@
 

@@ -19,50 +19,50 @@ rwildcard=$(wildcard $1$2) $(foreach dir,$(wildcard $1*),$(call rwildcard,$(dir)
 SRC_C := $(call rwildcard,$(SRCDIR)/,*.c)
 SRC_CPP := $(call rwildcard,$(SRCDIR)/,*.cpp)
 
-C_OBJ := $(SRC_C:.c=.o)
-CPP_OBJ := $(SRC_CPP:.cpp=.o)
+OBJ_C := $(SRC_C:.c=.o)
+OBJ_CPP := $(SRC_CPP:.cpp=.o)
 
 OBJDIR_DEBUG := Debug
-C_OBJ_DEBUG := $(addprefix $(OBJDIR_DEBUG)/,$(C_OBJ))
-CPP_OBJ_DEBUG := $(addprefix $(OBJDIR_DEBUG)/,$(CPP_OBJ))
+OBJ_C_DEBUG := $(addprefix $(OBJDIR_DEBUG)/,$(OBJ_C))
+OBJ_CPP_DEBUG := $(addprefix $(OBJDIR_DEBUG)/,$(OBJ_CPP))
 
 OBJDIR_RELEASE := Release
-C_OBJ_RELEASE := $(addprefix $(OBJDIR_RELEASE)/,$(C_OBJ))
-CPP_OBJ_RELEASE := $(addprefix $(OBJDIR_RELEASE)/,$(CPP_OBJ))
+OBJ_C_RELEASE := $(addprefix $(OBJDIR_RELEASE)/,$(OBJ_C))
+OBJ_CPP_RELEASE := $(addprefix $(OBJDIR_RELEASE)/,$(OBJ_CPP))
 
 .PHONY: all
 all: debug release
 
--include $(C_OBJ_DEBUG:.o=.d) $(CPP_OBJ_DEBUG:.o=.d)
--include $(C_OBJ_RELEASE:.o=.d) $(CPP_OBJ_RELEASE:.o=.d)
+-include $(OBJ_C_DEBUG:.o=.d) $(OBJ_CPP_DEBUG:.o=.d)
+-include $(OBJ_C_RELEASE:.o=.d) $(OBJ_CPP_RELEASE:.o=.d)
 
 .PHONY: debug
 debug: $(OBJDIR_DEBUG)/$(EXEC)
 
-$(OBJDIR_DEBUG)/$(EXEC): $(C_OBJ_DEBUG) $(CPP_OBJ_DEBUG)
+$(OBJDIR_DEBUG)/$(EXEC): $(OBJ_C_DEBUG) $(OBJ_CPP_DEBUG)
 	@mkdir -p $(@D)
 	$(LD) $+ $(LDFLAGS) -o $@
 
-$(C_OBJ_DEBUG): $(OBJDIR_DEBUG)/%.o: %.c
+$(OBJ_C_DEBUG): $(OBJDIR_DEBUG)/%.o: %.c
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS_DEBUG) -MMD -c -o $@ $<
 
-$(CPP_OBJ_DEBUG): $(OBJDIR_DEBUG)/%.o: %.cpp
+$(OBJ_CPP_DEBUG): $(OBJDIR_DEBUG)/%.o: %.cpp
 	@mkdir -p $(@D)
 	$(CPP) $(CPPFLAGS_DEBUG) -MMD -c -o $@ $<
 
 .PHONY: release
 release: $(OBJDIR_RELEASE)/$(EXEC)
 
-$(OBJDIR_RELEASE)/$(EXEC): $(C_OBJ_RELEASE) $(CPP_OBJ_RELEASE)
+$(OBJDIR_RELEASE)/$(EXEC): $(OBJ_C_RELEASE) $(OBJ_CPP_RELEASE)
 	@mkdir -p $(@D)
 	$(LD) $+ $(LDFLAGS) -o $@
 
-$(C_OBJ_RELEASE): $(OBJDIR_RELEASE)/%.o: %.c
+$(OBJ_C_RELEASE): $(OBJDIR_RELEASE)/%.o: %.c
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS_RELEASE) -MMD -c -o $@ $<
 
-$(CPP_OBJ_RELEASE): $(OBJDIR_RELEASE)/%.o: %.cpp
+$(OBJ_CPP_RELEASE): $(OBJDIR_RELEASE)/%.o: %.cpp
 	@mkdir -p $(@D)
 	$(CPP) $(CPPFLAGS_RELEASE) -MMD -c -o $@ $<
 

@@ -6,29 +6,25 @@ CFLAGS_RELEASE := -O2 -Wall -Wextra -Werror -pedantic -std=c18 -flto
 
 CPP := g++
 CPPFLAGS_DEBUG := -O0 -g3 -Wall -std=c++20
-CPPFLAGS_RELEASE := -O2 -Wall -Wextra -Werror -pedantic -std=c++20 -flto
+CPPFLAGS_RELEASE := -O2 -Wall -Wextra -Werror -pedantic -std=c++23 -flto
 
 LD := g++
 LDFLAGS :=
 
-SRCDIR := src
-
 # Make does not offer a recursive wildcard function, so here's one:
 rwildcard=$(wildcard $1$2) $(foreach dir,$(wildcard $1*),$(call rwildcard,$(dir)/,$2))
 
-SRC_C := $(call rwildcard,$(SRCDIR)/,*.c)
-SRC_CPP := $(call rwildcard,$(SRCDIR)/,*.cpp)
+SRC_C := $(call rwildcard,src/,*.c)
+SRC_CPP := $(call rwildcard,src/,*.cpp)
 
 OBJ_C := $(SRC_C:.c=.o)
 OBJ_CPP := $(SRC_CPP:.cpp=.o)
 
-OBJDIR_DEBUG := Debug
-OBJ_C_DEBUG := $(addprefix $(OBJDIR_DEBUG)/,$(OBJ_C))
-OBJ_CPP_DEBUG := $(addprefix $(OBJDIR_DEBUG)/,$(OBJ_CPP))
+OBJ_C_DEBUG := $(addprefix build-debug/,$(OBJ_C))
+OBJ_CPP_DEBUG := $(addprefix build-debug/,$(OBJ_CPP))
 
-OBJDIR_RELEASE := Release
-OBJ_C_RELEASE := $(addprefix $(OBJDIR_RELEASE)/,$(OBJ_C))
-OBJ_CPP_RELEASE := $(addprefix $(OBJDIR_RELEASE)/,$(OBJ_CPP))
+OBJ_C_RELEASE := $(addprefix build-release/,$(OBJ_C))
+OBJ_CPP_RELEASE := $(addprefix build-release/,$(OBJ_CPP))
 
 .PHONY: all
 all: debug release
@@ -37,32 +33,32 @@ all: debug release
 -include $(OBJ_C_RELEASE:.o=.d) $(OBJ_CPP_RELEASE:.o=.d)
 
 .PHONY: debug
-debug: $(OBJDIR_DEBUG)/$(EXEC)
+debug: build-debug/$(EXEC)
 
-$(OBJDIR_DEBUG)/$(EXEC): $(OBJ_C_DEBUG) $(OBJ_CPP_DEBUG)
+build-debug/$(EXEC): $(OBJ_C_DEBUG) $(OBJ_CPP_DEBUG)
 	@mkdir -p $(@D)
 	$(LD) $+ $(LDFLAGS) -o $@
 
-$(OBJ_C_DEBUG): $(OBJDIR_DEBUG)/%.o: %.c
+$(OBJ_C_DEBUG): build-debug/%.o: %.c
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS_DEBUG) -MMD -c -o $@ $<
 
-$(OBJ_CPP_DEBUG): $(OBJDIR_DEBUG)/%.o: %.cpp
+$(OBJ_CPP_DEBUG): build-debug/%.o: %.cpp
 	@mkdir -p $(@D)
 	$(CPP) $(CPPFLAGS_DEBUG) -MMD -c -o $@ $<
 
 .PHONY: release
-release: $(OBJDIR_RELEASE)/$(EXEC)
+release: build-release/$(EXEC)
 
-$(OBJDIR_RELEASE)/$(EXEC): $(OBJ_C_RELEASE) $(OBJ_CPP_RELEASE)
+build-release/$(EXEC): $(OBJ_C_RELEASE) $(OBJ_CPP_RELEASE)
 	@mkdir -p $(@D)
 	$(LD) $+ $(LDFLAGS) -o $@
 
-$(OBJ_C_RELEASE): $(OBJDIR_RELEASE)/%.o: %.c
+$(OBJ_C_RELEASE): build-release/%.o: %.c
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS_RELEASE) -MMD -c -o $@ $<
 
-$(OBJ_CPP_RELEASE): $(OBJDIR_RELEASE)/%.o: %.cpp
+$(OBJ_CPP_RELEASE): build-release/%.o: %.cpp
 	@mkdir -p $(@D)
 	$(CPP) $(CPPFLAGS_RELEASE) -MMD -c -o $@ $<
 
@@ -71,8 +67,8 @@ clean: clean-debug clean-release
 
 .PHONY: clean-debug
 clean-debug:
-	rm -rf $(OBJDIR_DEBUG)
+	rm -rf build-debug
 
 .PHONY: clean-release
 clean-release:
-	rm -rf $(OBJDIR_RELEASE)
+	rm -rf build-release

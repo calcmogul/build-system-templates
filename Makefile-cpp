@@ -1,33 +1,30 @@
 EXEC := example
 
 CPP := g++
-CPPFLAGS := -O2 -Wall -Wextra -Werror -pedantic -std=c++20 -flto
+CPPFLAGS := -O2 -Wall -Wextra -Werror -pedantic -std=c++23 -flto
 
 LD := g++
 LDFLAGS :=
 
-SRCDIR := src
-OBJDIR := build
-
 # Make does not offer a recursive wildcard function, so here's one:
 rwildcard=$(wildcard $1$2) $(foreach dir,$(wildcard $1*),$(call rwildcard,$(dir)/,$2))
 
-SRC := $(call rwildcard,$(SRCDIR)/,*.cpp)
-OBJ := $(addprefix $(OBJDIR)/,$(SRC:.cpp=.o))
+SRC := $(call rwildcard,src/,*.cpp)
+OBJ := $(addprefix build/,$(SRC:.cpp=.o))
 
 .PHONY: all
-all: $(OBJDIR)/$(EXEC)
+all: build/$(EXEC)
 
 -include $(OBJ:.o=.d)
 
-$(OBJDIR)/$(EXEC): $(OBJ)
+build/$(EXEC): $(OBJ)
 	@mkdir -p $(@D)
 	$(LD) $+ $(LDFLAGS) -o $@
 
-$(OBJDIR)/%.o: %.cpp
+build/%.o: %.cpp
 	@mkdir -p $(@D)
 	$(CPP) $(CPPFLAGS) -MMD -c -o $@ $<
 
 .PHONY: clean
 clean:
-	rm -rf $(OBJDIR)
+	rm -rf build

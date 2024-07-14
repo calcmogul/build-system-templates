@@ -4,40 +4,37 @@ CC := gcc
 CFLAGS := -O2 -Wall -Wextra -Werror -pedantic -std=c18 -flto
 
 CPP := g++
-CPPFLAGS := -O2 -Wall -Wextra -Werror -pedantic -std=c++20 -flto
+CPPFLAGS := -O2 -Wall -Wextra -Werror -pedantic -std=c++23 -flto
 
 LD := g++
 LDFLAGS :=
 
-SRCDIR := src
-OBJDIR := build
-
 # Make does not offer a recursive wildcard function, so here's one:
 rwildcard=$(wildcard $1$2) $(foreach dir,$(wildcard $1*),$(call rwildcard,$(dir)/,$2))
 
-SRC_C := $(call rwildcard,$(SRCDIR)/,*.c)
-SRC_CPP := $(call rwildcard,$(SRCDIR)/,*.cpp)
+SRC_C := $(call rwildcard,src/,*.c)
+SRC_CPP := $(call rwildcard,src/,*.cpp)
 
-OBJ_C := $(addprefix $(OBJDIR)/,$(SRC_C:.c=.o))
-OBJ_CPP := $(addprefix $(OBJDIR)/,$(SRC_CPP:.cpp=.o))
+OBJ_C := $(addprefix build/,$(SRC_C:.c=.o))
+OBJ_CPP := $(addprefix build/,$(SRC_CPP:.cpp=.o))
 
 .PHONY: all
-all: $(OBJDIR)/$(EXEC)
+all: build/$(EXEC)
 
 -include $(OBJ_C:.o=.d) $(OBJ_CPP:.o=.d)
 
-$(OBJDIR)/$(EXEC): $(OBJ_C) $(OBJ_CPP)
+build/$(EXEC): $(OBJ_C) $(OBJ_CPP)
 	@mkdir -p $(@D)
 	$(LD) $+ $(LDFLAGS) -o $@
 
-$(OBJDIR)/%.o: %.c
+build/%.o: %.c
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -MMD -c -o $@ $<
 
-$(OBJDIR)/%.o: %.cpp
+build/%.o: %.cpp
 	@mkdir -p $(@D)
 	$(CPP) $(CPPFLAGS) -MMD -c -o $@ $<
 
 .PHONY: clean
 clean:
-	rm -rf $(OBJDIR)
+	rm -rf build

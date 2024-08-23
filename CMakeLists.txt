@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.21)
 
-project(example)
-
 # Set default build type to release
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
 endif()
+
+project(example)
 
 file(GLOB_RECURSE cpp_src src/*.cpp)
 set_property(SOURCE ${cpp_src} PROPERTY COMPILE_FLAGS "-Wno-unused")

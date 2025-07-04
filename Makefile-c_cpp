@@ -7,7 +7,7 @@ CPP := g++
 CPPFLAGS := -O2 -Wall -Wextra -Werror -pedantic -std=c++23 -flto
 
 LD := g++
-LDFLAGS :=
+LDFLAGS := -flto
 
 # Make does not offer a recursive wildcard function, so here's one:
 rwildcard=$(wildcard $1$2) $(foreach dir,$(wildcard $1*),$(call rwildcard,$(dir)/,$2))
